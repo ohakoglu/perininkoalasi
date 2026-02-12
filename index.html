@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#EAF6FF" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Peri’nin Koalası</title>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">🐨</div>
+        <div>
+          <div class="title">Peri’nin Koalası</div>
+          <div class="subtitle">Matematikle büyür. Üzülmek yok.</div>
+        </div>
+      </div>
+      <div class="pill pill-soft" id="ver">v0.1</div>
+    </header>
+
+    <!-- SCREEN: SET NAME -->
+    <section class="card" id="screenName">
+      <h1>Koalana isim koyalım</h1>
+      <p class="sub">İsim koyunca koalan seninle büyümeye başlar.</p>
+
+      <label class="label">Koalanın adı</label>
+      <input class="input" id="nameInput" maxlength="18" placeholder="Mesela: Pofuduk" />
+
+      <div class="row">
+        <button class="btn" id="btnStart">Başla</button>
+        <button class="btn btn-soft" id="btnRandom">Rastgele isim</button>
+      </div>
+
+      <div class="tiny">Not: İsim sonra değiştirilebilir (ama her dakika değil 😄).</div>
+    </section>
+
+    <!-- SCREEN: HOME -->
+    <section class="card hidden" id="screenHome">
+      <div class="homeHead">
+        <div>
+          <h1 id="helloTitle">Merhaba!</h1>
+          <p class="sub" id="helloSub">Koalan seni bekliyor.</p>
+        </div>
+        <button class="btn btn-soft btn-mini" id="btnResetConfirm">Sıfırla</button>
+      </div>
+
+      <div class="stats">
+        <div class="pill">✅ Doğru: <span id="sCorrect">0</span></div>
+        <div class="pill">🍃 Yaprak: <span id="sLeaves">0</span></div>
+        <div class="pill">✨ XP: <span id="sXp">0</span></div>
+        <div class="pill">🍽️ Tokluk: <span id="sHunger">0</span>%</div>
+      </div>
+
+      <div class="hero">
+        <div class="koalaStage" id="koalaStage"></div>
+        <div class="heroButtons">
+          <button class="btn" id="btnKoala">Koalam</button>
+          <button class="btn btn-soft" id="btnMath">Matematik (yakında)</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>Yedek / Geri Yükle</h2>
+      <p class="sub">Telefon verisi silinirse üzülmeyelim. Buradan yedek al.</p>
+
+      <div class="row">
+        <button class="btn btn-soft" id="btnExport">Yedeği indir (JSON)</button>
+        <label class="btn btn-soft fileBtn">
+          Yedekten yükle (JSON)
+          <input type="file" id="importFile" accept="application/json" />
+        </label>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </section>
+
+    <!-- SCREEN: KOALA -->
+    <section class="card hidden" id="screenKoala">
+      <div class="homeHead">
+        <div>
+          <h1 id="kTitle">Koalam</h1>
+          <p class="sub" id="kSub">Sakin, mutlu, büyümeye hazır.</p>
+        </div>
+        <button class="btn btn-soft btn-mini" id="btnBack">Geri</button>
+      </div>
+
+      <div class="koalaBig" id="koalaBig"></div>
+
+      <div class="bars">
+        <div class="bar">
+          <div class="barLabel">Tokluk</div>
+          <div class="barTrack"><div class="barFill" id="barHunger"></div></div>
+        </div>
+        <div class="bar">
+          <div class="barLabel">XP</div>
+          <div class="barTrack"><div class="barFill" id="barXp"></div></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="btnFeed">Yaprak yedir</button>
+        <button class="btn btn-soft" id="btnWardrobe">Dolap (yakında)</button>
+      </div>
+
+      <div class="tiny" id="kTiny"></div>
+      <div class="toast" id="toast2"></div>
+    </section>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
