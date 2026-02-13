@@ -20,8 +20,6 @@ export function renderKoalaLayers(state, {big=false} = {}){
     ? `<img class="kLayer ${cls}" src="${src}" alt="">`
     : `<span class="kLayer ${cls}"></span>`;
 
-  // Face FX overlay lives ABOVE the PNG layers.
-  // Blink + mood are CSS-driven, triggered by applyKoalaIdleMotion timers.
   return `
     <div class="koalaCanvas ${big ? "big" : "small"}" data-mood="smile">
       ${img(layers.back,"back")}
@@ -31,9 +29,9 @@ export function renderKoalaLayers(state, {big=false} = {}){
       ${img(layers.hand,"hand")}
       ${img(layers.hat,"hat")}
 
+      <!-- FX overlay: eyelids + mouth + brows -->
       <div class="kFX" aria-hidden="true">
-        <div class="kLid left"></div>
-        <div class="kLid right"></div>
+        <img class="kFxBlink" src="assets/koala/fx/blink_lids.png" alt="">
         <div class="kMouth"></div>
         <div class="kBrow left"></div>
         <div class="kBrow right"></div>
@@ -43,42 +41,38 @@ export function renderKoalaLayers(state, {big=false} = {}){
 }
 
 /**
- * Adds subtle idle motion + random blink (1–8s) + random mood shift (1–30s).
- * Safe to call multiple times; it will arm itself only once per canvas.
+ * Adds subtle idle motion + random blink (1â8s) + random mood shift (1â30s).
+ * Safe to call multiple times; it arms itself only once per canvas.
  */
 export function applyKoalaIdleMotion(canvasEl){
   if(!canvasEl) return;
 
-  // breathing forever
   canvasEl.classList.add("koalaIdle");
 
   // Prevent double-arming timers if render() re-runs
   if(canvasEl.dataset.fxArmed === "1") return;
   canvasEl.dataset.fxArmed = "1";
 
-  // Start with a calm default
   if(!canvasEl.dataset.mood) canvasEl.dataset.mood = "smile";
 
-  // Random blink loop: 1–8 seconds
+  // Random blink loop: 1â8 seconds
   const scheduleBlink = () => {
     const ms = randInt(1000, 8000);
     setTimeout(() => {
       // trigger single blink
       canvasEl.classList.remove("blinkNow");
-      // force reflow
-      void canvasEl.offsetWidth;
+      void canvasEl.offsetWidth; // reflow
       canvasEl.classList.add("blinkNow");
       scheduleBlink();
     }, ms);
   };
 
-  // Random mood loop: 1–30 seconds
+  // Random mood loop: 1â30 seconds
   const moods = ["smile","neutral","curious"];
   const scheduleMood = () => {
     const ms = randInt(1000, 30000);
     setTimeout(() => {
       const current = canvasEl.dataset.mood || "smile";
-      // pick a different one than current
       const options = moods.filter(m => m !== current);
       const next = options[Math.floor(Math.random()*options.length)];
       canvasEl.dataset.mood = next;
@@ -86,12 +80,10 @@ export function applyKoalaIdleMotion(canvasEl){
     }, ms);
   };
 
-  // arm loops
   scheduleBlink();
   scheduleMood();
 }
 
 function randInt(min, max){
-  // inclusive min/max
   return Math.floor(Math.random()*(max-min+1)) + min;
 }
