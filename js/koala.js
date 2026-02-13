@@ -29,24 +29,22 @@ export function renderKoalaLayers(state, {big=false} = {}){
       ${img(layers.hand,"hand")}
       ${img(layers.hat,"hat")}
 
-      <!-- FX overlay: eyelids + mouth + brows -->
+      <!-- FX overlay (PNG blink) -->
       <div class="kFX" aria-hidden="true">
-        <img class="kFxBlink" src="assets/koala/fx/blink_lids.png" alt="">
-        <div class="kMouth"></div>
-        <div class="kBrow left"></div>
-        <div class="kBrow right"></div>
+        <div class="kBlink"></div>
       </div>
     </div>
   `;
 }
 
 /**
- * Adds subtle idle motion + random blink (1â8s) + random mood shift (1â30s).
- * Safe to call multiple times; it arms itself only once per canvas.
+ * Subtle breathing + random blink (1–8s) + random mood (1–30s placeholder).
+ * NOTE: Mood is kept in dataset for later; current CSS only uses it if you add mood UI.
  */
 export function applyKoalaIdleMotion(canvasEl){
   if(!canvasEl) return;
 
+  // breathing forever
   canvasEl.classList.add("koalaIdle");
 
   // Prevent double-arming timers if render() re-runs
@@ -55,7 +53,7 @@ export function applyKoalaIdleMotion(canvasEl){
 
   if(!canvasEl.dataset.mood) canvasEl.dataset.mood = "smile";
 
-  // Random blink loop: 1â8 seconds
+  // Random blink loop: 1–8 seconds
   const scheduleBlink = () => {
     const ms = randInt(1000, 8000);
     setTimeout(() => {
@@ -67,7 +65,7 @@ export function applyKoalaIdleMotion(canvasEl){
     }, ms);
   };
 
-  // Random mood loop: 1â30 seconds
+  // Random mood loop: 1–30 seconds (subtle; CSS mood can be added later)
   const moods = ["smile","neutral","curious"];
   const scheduleMood = () => {
     const ms = randInt(1000, 30000);
