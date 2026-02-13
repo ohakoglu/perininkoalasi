@@ -129,32 +129,35 @@ h2{ margin:0 0 8px; font-size:16px; }
   pointer-events:none;
 }
 
-/* Eyelids: tuned for the “A” standing koala (full-body, face in upper-mid area).
-   If needed we’ll micro-adjust these percentages later. */
+/*
+  Eyelids:
+  - Konumları biraz daha toleranslı yaptım (geniş/kalın).
+  - Eğer hâlâ kayıksa, sonra sadece top/left yüzdelerini mikro ayarlarız.
+*/
 .kLid{
   position:absolute;
-  width: 10%;
-  height: 4.5%;
-  top: 33.5%;
-  background: rgba(255,255,255,.85);
+  width: 12%;
+  height: 6%;
+  top: 30.5%;
+  background: rgba(255,255,255,.88);
   border-radius: 999px;
   opacity: 0;
   transform: scaleY(.2);
   transform-origin: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
 }
-.kLid.left{ left: 41.2%; }
-.kLid.right{ left: 50.8%; }
+.kLid.left{ left: 39.8%; }
+.kLid.right{ left: 52.2%; }
 
-/* Single blink trigger */
+/* Blink: daha yavaş ve “insan gibi” */
 @keyframes blinkOnce{
   0%   { opacity:0; transform: scaleY(.2); }
-  15%  { opacity:.95; transform: scaleY(1.35); }
-  45%  { opacity:.95; transform: scaleY(1.35); }
-  80%  { opacity:0; transform: scaleY(.25); }
+  20%  { opacity:.95; transform: scaleY(1.55); }
+  55%  { opacity:.95; transform: scaleY(1.55); } /* göz kapalı biraz kalsın */
+  85%  { opacity:0; transform: scaleY(.35); }
   100% { opacity:0; transform: scaleY(.2); }
 }
-.koalaCanvas.blinkNow .kLid{ animation: blinkOnce 180ms ease-in-out 1; }
+.koalaCanvas.blinkNow .kLid{ animation: blinkOnce 360ms ease-in-out 1; }
 
 /* Mouth + brows are subtle overlays; they don’t replace the art, they “nudge” expression. */
 .kMouth{
