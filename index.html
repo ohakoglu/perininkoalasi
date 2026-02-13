@@ -18,23 +18,31 @@
           <div class="subtitle">Matematikle büyür. Üzülmek yok.</div>
         </div>
       </div>
-      <div class="pill pill-soft" id="ver">v0.1</div>
+      <div class="pill pill-soft" id="ver">v0.2</div>
     </header>
 
     <!-- SCREEN: SET NAME -->
     <section class="card" id="screenName">
       <h1>Koalana isim koyalım</h1>
-      <p class="sub">İsim koyunca koalan seninle büyümeye başlar.</p>
+      <p class="sub">İsim + renk seç. Sonra koalan büyür.</p>
 
       <label class="label">Koalanın adı</label>
       <input class="input" id="nameInput" maxlength="18" placeholder="Mesela: Pofuduk" />
+
+      <label class="label">Renk seç</label>
+      <div class="row row3">
+        <button class="btn btn-soft colorBtn selected" data-color="mint">Mint</button>
+        <button class="btn btn-soft colorBtn" data-color="lavender">Lavanta</button>
+        <button class="btn btn-soft colorBtn" data-color="sky">Gökyüzü</button>
+      </div>
 
       <div class="row">
         <button class="btn" id="btnStart">Başla</button>
         <button class="btn btn-soft" id="btnRandom">Rastgele isim</button>
       </div>
 
-      <div class="tiny">Not: İsim sonra değiştirilebilir (ama her dakika değil 😄).</div>
+      <div class="tiny">Not: Yedek/geri yükle hazır. Kayıt silinirse drama yok.</div>
+      <div class="toast" id="toast"></div>
     </section>
 
     <!-- SCREEN: HOME -->
