@@ -1,19 +1,21 @@
-const CACHE = "perinin-koalasi-v04";
+const CACHE = "perinin-koalasi-v04-2";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./manifest.json",
-  "./sw.js",
   "./js/app.js",
   "./js/state.js",
   "./js/storage.js",
   "./js/koala.js",
 
-  "./assets/koala/fx/blink_lids.png",
+  // Base images
   "./assets/koala/base/base_mint.png",
   "./assets/koala/base/base_lavender.png",
-  "./assets/koala/base/base_sky.png"
+  "./assets/koala/base/base_sky.png",
+
+  // Blink overlay
+  "./assets/koala/fx/blink_lids.png"
 ];
 
 self.addEventListener("install", (e) => {
