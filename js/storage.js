@@ -1,6 +1,6 @@
 import { defaultState, sanitizeState } from "./state.js";
 
-const KEY = "perinin_koalasi_state_v01";
+const KEY = "perinin_koalasi_state_v02";
 
 export function load() {
   try {
