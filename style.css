@@ -108,6 +108,7 @@ h2{ margin:0 0 8px; font-size:16px; }
   transform-origin:center;
 }
 .koalaCanvas.big{ width:320px; height:320px; }
+
 .kLayer{
   position:absolute;
   inset:0;
@@ -120,6 +121,98 @@ h2{ margin:0 0 8px; font-size:16px; }
 /* Subtle idle motion */
 @keyframes breathe { 0%{ transform: scale(1);} 50%{ transform: scale(1.025);} 100%{ transform: scale(1);} }
 .koalaIdle{ animation: breathe 2.6s ease-in-out infinite; }
+
+/* -------- Face FX overlay (blink + mood) -------- */
+.kFX{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+/* Eyelids: tuned for the “A” standing koala (full-body, face in upper-mid area).
+   If needed we’ll micro-adjust these percentages later. */
+.kLid{
+  position:absolute;
+  width: 10%;
+  height: 4.5%;
+  top: 33.5%;
+  background: rgba(255,255,255,.85);
+  border-radius: 999px;
+  opacity: 0;
+  transform: scaleY(.2);
+  transform-origin: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.kLid.left{ left: 41.2%; }
+.kLid.right{ left: 50.8%; }
+
+/* Single blink trigger */
+@keyframes blinkOnce{
+  0%   { opacity:0; transform: scaleY(.2); }
+  15%  { opacity:.95; transform: scaleY(1.35); }
+  45%  { opacity:.95; transform: scaleY(1.35); }
+  80%  { opacity:0; transform: scaleY(.25); }
+  100% { opacity:0; transform: scaleY(.2); }
+}
+.koalaCanvas.blinkNow .kLid{ animation: blinkOnce 180ms ease-in-out 1; }
+
+/* Mouth + brows are subtle overlays; they don’t replace the art, they “nudge” expression. */
+.kMouth{
+  position:absolute;
+  width: 14%;
+  height: 6%;
+  left: 43%;
+  top: 42.5%;
+  border-bottom: 4px solid rgba(15,23,42,.20);
+  border-radius: 0 0 999px 999px;
+  opacity: .35;
+  transform: translateY(0);
+}
+.kBrow{
+  position:absolute;
+  width: 9%;
+  height: 3%;
+  top: 30.5%;
+  border-top: 4px solid rgba(15,23,42,.12);
+  border-radius: 999px;
+  opacity: .25;
+}
+.kBrow.left{ left: 40.5%; transform: rotate(0deg); }
+.kBrow.right{ left: 51.5%; transform: rotate(0deg); }
+
+/* Mood states */
+.koalaCanvas[data-mood="smile"] .kMouth{
+  opacity:.42;
+  transform: translateY(-1px);
+  border-bottom-color: rgba(15,23,42,.22);
+}
+.koalaCanvas[data-mood="smile"] .kBrow{
+  opacity:.18;
+}
+
+.koalaCanvas[data-mood="neutral"] .kMouth{
+  opacity:.22;
+  border-bottom-color: rgba(15,23,42,.16);
+  transform: translateY(1px) scaleX(.95);
+  border-radius: 0 0 18px 18px;
+}
+.koalaCanvas[data-mood="neutral"] .kBrow{
+  opacity:.22;
+}
+
+.koalaCanvas[data-mood="curious"] .kMouth{
+  opacity:.28;
+  transform: translateY(0px) scaleX(.85);
+  border-bottom-color: rgba(15,23,42,.18);
+}
+.koalaCanvas[data-mood="curious"] .kBrow.left{
+  opacity:.30;
+  transform: rotate(-10deg) translateY(-1px);
+}
+.koalaCanvas[data-mood="curious"] .kBrow.right{
+  opacity:.14;
+  transform: rotate(6deg) translateY(1px);
+}
 
 /* Bars */
 .bars{ display:grid; gap:10px; margin-top:14px; }
