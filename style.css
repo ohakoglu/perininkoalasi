@@ -2,7 +2,6 @@
   --bg:#EAF6FF;
   --card:#ffffff;
   --ink:#0f172a;
-  --muted:rgba(15,23,42,.72);
   --soft:#F1F5F9;
   --blue:#1F6FEB;
   --blueSoft:#EAF2FF;
@@ -17,13 +16,9 @@ body{
   background: var(--bg);
   color: var(--ink);
 }
-
 .wrap{ max-width:640px; margin:0 auto; padding:16px; }
 
-.top{
-  display:flex; justify-content:space-between; align-items:center;
-  gap:12px; margin-bottom:12px;
-}
+.top{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
 .brand{ display:flex; align-items:center; gap:12px; }
 .logo{
   width:44px;height:44px;border-radius:14px;background:#fff;
@@ -33,13 +28,7 @@ body{
 .title{ font-weight:950; }
 .subtitle{ font-size:12px; opacity:.7; font-weight:800; margin-top:2px; }
 
-.card{
-  background:var(--card);
-  border-radius: var(--r);
-  padding:16px;
-  box-shadow: var(--shadow);
-}
-
+.card{ background:var(--card); border-radius: var(--r); padding:16px; box-shadow: var(--shadow); }
 h1{ margin:0 0 8px; font-size:22px; }
 h2{ margin:0 0 8px; font-size:16px; }
 .sub{ margin:0 0 14px; font-weight:850; opacity:.75; }
@@ -58,6 +47,7 @@ h2{ margin:0 0 8px; font-size:16px; }
 
 .row{ display:flex; gap:10px; flex-wrap:wrap; }
 .row > *{ flex:1; min-width: 160px; }
+.row3 > *{ min-width: 0; }
 
 .btn{
   border:0; border-radius:14px;
@@ -67,11 +57,11 @@ h2{ margin:0 0 8px; font-size:16px; }
 }
 .btn:active{ transform: translateY(1px); }
 
-.btn-soft{
-  background: var(--blueSoft);
-  color: var(--blue);
-}
+.btn-soft{ background: var(--blueSoft); color: var(--blue); }
 .btn-mini{ padding:10px 12px; font-size:14px; flex:0 0 auto; min-width:auto; }
+
+.colorBtn{ border:1px solid rgba(31,111,235,.20); }
+.colorBtn.selected{ outline:3px solid rgba(31,111,235,.28); }
 
 .pill{
   display:inline-flex; align-items:center; gap:6px;
@@ -85,16 +75,12 @@ h2{ margin:0 0 8px; font-size:16px; }
 .hidden{ display:none; }
 
 .stats{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
-
 .homeHead{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
 .hero{ margin-top:14px; }
 .heroButtons{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
 .heroButtons .btn{ flex:1; min-width: 180px; }
 
-.divider{
-  height:1px; background: rgba(15,23,42,.08);
-  margin:16px 0;
-}
+.divider{ height:1px; background: rgba(15,23,42,.08); margin:16px 0; }
 
 .toast{ margin-top:10px; font-weight:950; min-height:24px; opacity:.85; }
 .tiny{ margin-top:10px; font-size:12px; font-weight:900; opacity:.7; }
@@ -102,24 +88,40 @@ h2{ margin:0 0 8px; font-size:16px; }
 .fileBtn{ position:relative; overflow:hidden; display:inline-flex; justify-content:center; align-items:center; }
 .fileBtn input{ position:absolute; inset:0; opacity:0; width:100%; height:100%; }
 
+/* KOALA containers */
 .koalaStage, .koalaBig{
   background: linear-gradient(180deg, rgba(255,255,255,.60), rgba(255,255,255,.18));
   border:2px solid rgba(15,23,42,.10);
   border-radius: 22px;
   box-shadow: 0 14px 30px rgba(0,0,0,.12);
   overflow:hidden;
-}
-
-.koalaStage{
-  height: 190px;
   display:flex; align-items:center; justify-content:center;
 }
+.koalaStage{ height: 190px; }
+.koalaBig{ height: 360px; }
 
-.koalaBig{
-  height: 360px;
-  display:flex; align-items:center; justify-content:center;
+/* Layered koala canvas */
+.koalaCanvas{
+  position:relative;
+  width:180px;
+  height:180px;
+  transform-origin:center;
+}
+.koalaCanvas.big{ width:320px; height:320px; }
+.kLayer{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
 }
 
+/* Subtle idle motion */
+@keyframes breathe { 0%{ transform: scale(1);} 50%{ transform: scale(1.025);} 100%{ transform: scale(1);} }
+.koalaIdle{ animation: breathe 2.6s ease-in-out infinite; }
+
+/* Bars */
 .bars{ display:grid; gap:10px; margin-top:14px; }
 .barLabel{ font-size:12px; font-weight:950; opacity:.75; margin-bottom:6px; }
 .barTrack{
@@ -127,10 +129,3 @@ h2{ margin:0 0 8px; font-size:16px; }
   border:1px solid rgba(15,23,42,.08); overflow:hidden;
 }
 .barFill{ height:100%; width:30%; background: rgba(31,111,235,.85); border-radius:999px; }
-
-/* “Sakin ama canlı” mini animasyon */
-@keyframes breathe { 0%{ transform: scale(1);} 50%{ transform: scale(1.03);} 100%{ transform: scale(1);} }
-@keyframes blink { 0%, 92%, 100%{ opacity:1; } 94%, 96%{ opacity:.2; } }
-
-.koalaAnim{ animation: breathe 2.6s ease-in-out infinite; transform-origin: center; }
-.eyeBlink{ animation: blink 4.8s ease-in-out infinite; }
