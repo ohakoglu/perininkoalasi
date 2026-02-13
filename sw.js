@@ -1,4 +1,4 @@
-const CACHE = "perinin-koalasi-v01";
+const CACHE = "perinin-koalasi-v02";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,7 +7,21 @@ const ASSETS = [
   "./js/app.js",
   "./js/state.js",
   "./js/storage.js",
-  "./js/koala.js"
+  "./js/koala.js",
+  "./assets/koala/base/base_mint.png",
+  "./assets/koala/base/base_lavender.png",
+  "./assets/koala/base/base_sky.png",
+  "./assets/koala/hats/hat_flower.png",
+  "./assets/koala/hats/hat_beanie.png",
+  "./assets/koala/hats/hat_sun.png",
+  "./assets/koala/hats/hat_ribbon.png",
+  "./assets/koala/hats/hat_crown.png",
+  "./assets/koala/neck/neck_scarf_red.png",
+  "./assets/koala/neck/neck_bow_blue.png",
+  "./assets/koala/neck/neck_leaf_necklace.png",
+  "./assets/koala/hand/hand_star.png",
+  "./assets/koala/hand/hand_book.png",
+  "./assets/koala/hand/hand_leaf.png"
 ];
 
 self.addEventListener("install", (e) => {
