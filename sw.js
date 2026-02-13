@@ -1,4 +1,4 @@
-const CACHE = "perinin-koalasi-v04-2";
+const CACHE = "perinin-koalasi-v04-4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,12 +9,9 @@ const ASSETS = [
   "./js/storage.js",
   "./js/koala.js",
 
-  // Base images
   "./assets/koala/base/base_mint.png",
   "./assets/koala/base/base_lavender.png",
   "./assets/koala/base/base_sky.png",
-
-  // Blink overlay
   "./assets/koala/fx/blink_lids.png"
 ];
 
