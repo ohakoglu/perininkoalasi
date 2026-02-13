@@ -24,7 +24,7 @@ function stageLabel(stage){
 }
 
 function render(){
-  $("ver").textContent = "v0.2";
+  $("ver").textContent = "v0.3";
 
   const k = state.koala;
   const hasName = !!k.name;
@@ -97,9 +97,10 @@ $("btnKoala").addEventListener("click", () => {
   show("screenKoala");
   toast("",1);
   toast("",2);
-  // ensure idle motion applied on visible screen
+  // ensure fx armed on visible screen (after paint)
   setTimeout(()=>{
-    applyKoalaIdleMotion($("koalaBig").querySelector(".koalaCanvas"));
+    const c = $("koalaBig").querySelector(".koalaCanvas");
+    applyKoalaIdleMotion(c);
   }, 0);
 });
 
