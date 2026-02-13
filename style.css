@@ -76,7 +76,7 @@ h2{ margin:0 0 8px; font-size:16px; }
 .toast{ margin-top:10px; font-weight:950; min-height:24px; opacity:.85; }
 .tiny{ margin-top:10px; font-size:12px; font-weight:900; opacity:.7; }
 
-/* KOALA CONTAINERS */
+/* KOALA containers */
 .koalaStage, .koalaBig{
   background: linear-gradient(180deg, rgba(255,255,255,.60), rgba(255,255,255,.18));
   border:2px solid rgba(15,23,42,.10);
@@ -88,7 +88,7 @@ h2{ margin:0 0 8px; font-size:16px; }
 .koalaStage{ height: 190px; }
 .koalaBig{ height: 360px; }
 
-/* KOALA CANVAS */
+/* Layered koala canvas */
 .koalaCanvas{
   position:relative;
   width:180px;
@@ -106,22 +106,22 @@ h2{ margin:0 0 8px; font-size:16px; }
   pointer-events:none;
 }
 
-/* BREATHING */
+/* Subtle idle motion */
 @keyframes breathe {
-  0%{ transform: scale(1);}
-  50%{ transform: scale(1.02);}
-  100%{ transform: scale(1);}
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.02); }
+  100%{ transform: scale(1); }
 }
 .koalaIdle{ animation: breathe 2.8s ease-in-out infinite; }
 
-/* ===== REAL BLINK (PNG OVERLAY) ===== */
-
+/* ===== FX overlay ===== */
 .kFX{
   position:absolute;
   inset:0;
   pointer-events:none;
 }
 
+/* Blink overlay (PNG) */
 .kBlink{
   position:absolute;
   inset:0;
@@ -131,23 +131,83 @@ h2{ margin:0 0 8px; font-size:16px; }
   background-size: contain;
   background-repeat:no-repeat;
   background-position:center;
+
   opacity:0;
-  transform: translateY(-8%);
+
+  /* FIXES:
+     - Yukarı al: -8% -> -14%
+     - Dışa yay: scaleX(1.18)
+     - Azıcık daha kaplasın: scaleY(1.06)
+  */
+  transform: translateY(-14%) scaleX(1.18) scaleY(1.06);
+  transform-origin: center;
 }
 
-/* Natural eyelid movement */
 @keyframes blinkPNG{
-  0%   { opacity:0; transform: translateY(-8%); }
-  40%  { opacity:1; transform: translateY(0%); }
-  60%  { opacity:1; transform: translateY(0%); }
-  100% { opacity:0; transform: translateY(-8%); }
+  0%   { opacity:0; transform: translateY(-14%) scaleX(1.18) scaleY(1.06); }
+  40%  { opacity:1; transform: translateY(0%)   scaleX(1.18) scaleY(1.06); }
+  60%  { opacity:1; transform: translateY(0%)   scaleX(1.18) scaleY(1.06); }
+  100% { opacity:0; transform: translateY(-14%) scaleX(1.18) scaleY(1.06); }
 }
-
 .koalaCanvas.blinkNow .kBlink{
   animation: blinkPNG 240ms ease-in-out 1;
 }
 
-/* BARS */
+/* Mood overlays: very subtle nudges (not cartoony) */
+.kMouth{
+  position:absolute;
+  width: 14%;
+  height: 6%;
+  left: 43%;
+  top: 42.5%;
+  border-bottom: 4px solid rgba(15,23,42,.18);
+  border-radius: 0 0 999px 999px;
+  opacity: .30;
+  transform: translateY(0);
+}
+.kBrow{
+  position:absolute;
+  width: 9%;
+  height: 3%;
+  top: 30.5%;
+  border-top: 4px solid rgba(15,23,42,.10);
+  border-radius: 999px;
+  opacity: .18;
+}
+.kBrow.left{ left: 40.5%; transform: rotate(0deg); }
+.kBrow.right{ left: 51.5%; transform: rotate(0deg); }
+
+/* Mood states */
+.koalaCanvas[data-mood="smile"] .kMouth{
+  opacity:.34;
+  transform: translateY(-1px);
+  border-bottom-color: rgba(15,23,42,.20);
+}
+.koalaCanvas[data-mood="smile"] .kBrow{ opacity:.14; }
+
+.koalaCanvas[data-mood="neutral"] .kMouth{
+  opacity:.18;
+  transform: translateY(1px) scaleX(.95);
+  border-bottom-color: rgba(15,23,42,.14);
+  border-radius: 0 0 18px 18px;
+}
+.koalaCanvas[data-mood="neutral"] .kBrow{ opacity:.18; }
+
+.koalaCanvas[data-mood="curious"] .kMouth{
+  opacity:.22;
+  transform: translateY(0px) scaleX(.85);
+  border-bottom-color: rgba(15,23,42,.16);
+}
+.koalaCanvas[data-mood="curious"] .kBrow.left{
+  opacity:.24;
+  transform: rotate(-10deg) translateY(-1px);
+}
+.koalaCanvas[data-mood="curious"] .kBrow.right{
+  opacity:.12;
+  transform: rotate(6deg) translateY(1px);
+}
+
+/* Bars */
 .bars{ display:grid; gap:10px; margin-top:14px; }
 .barLabel{ font-size:12px; font-weight:950; opacity:.75; margin-bottom:6px; }
 .barTrack{
