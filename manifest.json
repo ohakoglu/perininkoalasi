@@ -5,11 +5,5 @@
   "display": "standalone",
   "background_color": "#EAF6FF",
   "theme_color": "#EAF6FF",
-  "icons": [
-    {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAv0lEQVR4nO3aMQ6CMBQF0Gk4Q6sQ0m2h0g0o1g0o1g0o1g0o1g0o1g0o1g0o1g0o1g0o1g0o1g0o1g0o1m2m1p0t1b5m2kq9p3y2gV8v8YHcWqzqv8f0m4mQfGmYh1w0Qm8q9j8f6o0mYwqkq8m2qfQq8m0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQ0mQAAAP//AwD2t9g3d2g5NwAAAABJRU5ErkJggg==",
-      "sizes": "64x64",
-      "type": "image/png"
-    }
-  ]
+  "icons": []
 }
