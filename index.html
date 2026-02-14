@@ -18,7 +18,7 @@
           <div class="subtitle">Matematikle büyür. Üzülmek yok.</div>
         </div>
       </div>
-      <div class="pill pill-soft" id="ver">v0.4</div>
+      <div class="pill pill-soft" id="ver">v0.5</div>
     </header>
 
     <!-- SCREEN: SET NAME -->
@@ -66,7 +66,7 @@
         <div class="koalaStage" id="koalaStage"></div>
         <div class="heroButtons">
           <button class="btn" id="btnKoala">Koalam</button>
-          <button class="btn" id="btnMath">Matematik Başla</button>
+          <button class="btn" id="btnMath">Matematik</button>
         </div>
       </div>
 
@@ -96,10 +96,17 @@
         <button class="btn btn-soft btn-mini" id="btnMathBack">Geri</button>
       </div>
 
+      <div class="modeTabs">
+        <button class="tabBtn selected" data-mode="speed">Hız Kazanalım</button>
+        <button class="tabBtn" data-mode="master">Usta Modu (2×)</button>
+        <button class="tabBtn" data-mode="marathon">Maraton</button>
+      </div>
+
       <div class="mathTop">
         <div class="pill">🎯 Hedef: <b><span id="mGoal">3000</span></b></div>
         <div class="pill">✅ Doğru: <b><span id="mCorrect">0</span></b></div>
         <div class="pill">🔥 Seri: <b><span id="mStreak">0</span></b></div>
+        <div class="pill" id="mMultPill">✳️ Çarpan: <b><span id="mMult">1.0</span>×</b></div>
       </div>
 
       <div class="prog">
@@ -111,13 +118,20 @@
 
       <div class="qCard">
         <div class="qText" id="qText">Hazır mısın?</div>
-        <div class="opts" id="optGrid">
-          <!-- buttons here -->
+
+        <!-- SPEED / MARATHON: options -->
+        <div class="opts" id="optGrid"></div>
+
+        <!-- MASTER: input -->
+        <div class="answerRow hidden" id="answerRow">
+          <input class="input ansInput" id="ansInput" inputmode="numeric" placeholder="Cevabı yaz" />
+          <button class="btn ansBtn" id="btnAnsOk">Tamam</button>
         </div>
+
         <div class="toast" id="mToast"></div>
       </div>
 
-      <div class="tiny">Yanlışta ceza yok. “Tekrar dene 🙂”</div>
+      <div class="tiny" id="mHint">Yanlışta ceza yok. “Tekrar dene 🙂”</div>
     </section>
 
     <!-- SCREEN: KOALA -->
