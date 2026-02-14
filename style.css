@@ -136,8 +136,33 @@ h2{ margin:0 0 8px; font-size:16px; }
 .barFill{ height:100%; width:30%; background: rgba(31,111,235,.85); border-radius:999px; }
 
 /* ===== MATH ===== */
+.modeTabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin: 10px 0 12px;
+}
+.tabBtn{
+  flex:1;
+  min-width: 160px;
+  border:0;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 1000;
+  background: var(--soft);
+  border: 2px solid rgba(15,23,42,.06);
+  color: var(--ink);
+}
+.tabBtn.selected{
+  background: rgba(31,111,235,.12);
+  border-color: rgba(31,111,235,.28);
+  color: var(--ink);
+}
+.tabBtn:active{ transform: translateY(1px); }
+
 .mathTop{ display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 12px; }
 .mathTop .pill{ flex: 1; min-width: 160px; justify-content:center; }
+#mMultPill{ display:none; } /* sadece maratonda açacağız */
 
 .prog{ margin: 8px 0 14px; }
 .progTrack{
@@ -196,3 +221,12 @@ h2{ margin:0 0 8px; font-size:16px; }
   background: rgba(239,68,68,.10);
   border-color: rgba(239,68,68,.25);
 }
+
+/* master input row */
+.answerRow{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.ansInput{ flex: 1; }
+.ansBtn{ flex: 0 0 auto; min-width: 120px; }
