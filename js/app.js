@@ -2,22 +2,28 @@ import { load, save, reset, exportToFile, importFromFile } from "./storage.js";
 import { renderKoalaLayers, applyKoalaIdleMotion } from "./koala.js";
 
 let state = load();
-state.math = state.math || { streak: 0 };
+// geri uyumluluk
+state.math = state.math || { streak: 0, lastQ: null, lastA: null };
 
 const $ = (id) => document.getElementById(id);
 
 function show(screenId){
-  ["screenName","screenHome","screenKoala","screenMath"].forEach(id => $(id).classList.add("hidden"));
-  $(screenId).classList.remove("hidden");
+  ["screenName","screenHome","screenKoala","screenMath"].forEach(id => {
+    const el = $(id);
+    if(el) el.classList.add("hidden");
+  });
+  const target = $(screenId);
+  if(target) target.classList.remove("hidden");
 }
 
 function toast(msg, which=1){
   const el = which===1 ? $("toast") : $("toast2");
-  el.textContent = msg || "";
+  if(el) el.textContent = msg || "";
 }
 
 function mtoast(msg){
-  $("mToast").textContent = msg || "";
+  const el = $("mToast");
+  if(el) el.textContent = msg || "";
 }
 
 function stageLabel(stage){
@@ -30,10 +36,9 @@ function stageLabel(stage){
 
 /* ---------- MATH ENGINE ---------- */
 const GOAL = 3000;
-
 let currentQ = null;
 let answeringLocked = false;
-let mode = "speed";
+let mode = "speed"; // speed | master | marathon
 
 function phaseFor(correctTotal){
   if(correctTotal < 150) return { name:"Isınma", pool:[2,5,10] };
@@ -66,11 +71,10 @@ function pickQuestion(){
     if(cand === ans) continue;
     opts.add(cand);
   }
-
   const list = Array.from(opts);
   shuffle(list);
 
-  return { a,b,ans,opts:list };
+  return { a,b,ans,opts:list, phaseName: ph.name };
 }
 
 function marathonMultiplier(streak){
@@ -82,6 +86,7 @@ function marathonMultiplier(streak){
 }
 
 function marathonStreakPenalty(streak){
+  // seri sıfırlanmasın; 5 düşsün
   return Math.max(0, streak - 5);
 }
 
@@ -111,21 +116,22 @@ function setMode(next){
   });
 
   const isMaster = mode === "master";
-  $("answerRow").classList.toggle("hidden", !isMaster);
-  $("optGrid").classList.toggle("hidden", isMaster);
+  $("answerRow")?.classList.toggle("hidden", !isMaster);
+  $("optGrid")?.classList.toggle("hidden", isMaster);
 
-  $("mMultPill").style.display =
-    (mode === "marathon") ? "inline-flex" : "none";
+  const isMarathon = mode === "marathon";
+  const multPill = $("mMultPill");
+  if(multPill) multPill.style.display = isMarathon ? "inline-flex" : "none";
 
   if(mode === "speed"){
     $("mSub").textContent = "Hız kazanalım: 4 şık, hızlı cevap.";
-    $("mHint").textContent = "Yanlışta ceza yok 🙂";
+    $("mHint").textContent = "Yanlışta ceza yok. Doğruyu 0.5 sn gösterir 🙂";
   } else if(mode === "master"){
-    $("mSub").textContent = "Usta Modu: cevabı sen yazarsın. (2×)";
-    $("mHint").textContent = "Yanlışta üzülmek yok 🙂";
+    $("mSub").textContent = "Usta Modu: cevabı sen yazarsın. (2× puan)";
+    $("mHint").textContent = "İpucu yok. Üzülmek de yok 🙂";
   } else {
     $("mSub").textContent = "Maraton: seri uzadıkça puan artar.";
-    $("mHint").textContent = "Yanlışta seri düşer ama sıfırlanmaz 🙂";
+    $("mHint").textContent = "Yanlışta seri düşer (sıfırlanmaz). Doğruyu 0.5 sn görürsün 🙂";
   }
 
   currentQ = pickQuestion();
@@ -142,13 +148,15 @@ function renderMath(){
   const pct = Math.min(100, (k.correctTotal / GOAL) * 100);
   $("mProg").style.width = `${pct}%`;
 
+  const ph = phaseFor(k.correctTotal);
+  $("mPhase").textContent = `Faz: ${ph.name}`;
+
   if(!currentQ) currentQ = pickQuestion();
 
   $("qText").textContent = `${currentQ.a} × ${currentQ.b} = ?`;
 
   if(mode === "marathon"){
-    $("mMult").textContent =
-      marathonMultiplier(state.math.streak).toFixed(1);
+    $("mMult").textContent = marathonMultiplier(state.math.streak).toFixed(1);
   } else {
     $("mMult").textContent = "1.0";
   }
@@ -159,11 +167,11 @@ function renderMath(){
   grid.innerHTML = "";
 
   if(mode !== "master"){
-    currentQ.opts.forEach(val=>{
+    currentQ.opts.forEach((val) => {
       const btn = document.createElement("button");
       btn.className = "optBtn";
-      btn.textContent = val;
-      btn.addEventListener("click", ()=> onAnswer(val, btn));
+      btn.textContent = String(val);
+      btn.addEventListener("click", () => onAnswer(val, btn));
       grid.appendChild(btn);
     });
   } else {
@@ -174,15 +182,13 @@ function renderMath(){
 
 function lockButtons(lock){
   if(mode === "master") return;
-  document.querySelectorAll(".optBtn")
-    .forEach(b=> b.disabled = !!lock);
+  document.querySelectorAll(".optBtn").forEach(b => b.disabled = !!lock);
 }
 
 function highlightCorrectAnswer(){
+  if(mode === "master") return;
   document.querySelectorAll(".optBtn").forEach(b=>{
-    if(Number(b.textContent) === currentQ.ans){
-      b.classList.add("good");
-    }
+    if(Number(b.textContent) === currentQ.ans) b.classList.add("good");
   });
 }
 
@@ -198,40 +204,88 @@ function onAnswer(val, btnEl){
   if(correct){
     btnEl && btnEl.classList.add("good");
 
+    // doğru: seri +1
     state.math.streak += 1;
+
     k.correctTotal += 1;
 
     const pts = pointsForCorrect();
     k.leaves += pts.leaves;
     k.xp += pts.xp;
 
-    mtoast("Doğru! 🐾");
+    if(mode === "master"){
+      mtoast(`Usta! +${pts.leaves}🍃 +${pts.xp}✨`);
+    } else if(mode === "marathon"){
+      mtoast(`Maraton! +${pts.leaves}🍃 +${pts.xp}✨ (çarpan)`);
+    } else {
+      // speed: 5'te bonus
+      if(state.math.streak % 5 === 0){
+        k.leaves += 3;
+        mtoast("Süper seri! +3 bonus yaprak 🍃🍃🍃");
+      } else {
+        mtoast("Doğru! 🐾");
+      }
+    }
+
+    if(k.correctTotal >= GOAL){
+      mtoast("🎉 3000! Koalan efsane oldu. (Final ekranı sonra)");
+    }
+
+    save(state);
+
+    setTimeout(() => {
+      currentQ = pickQuestion();
+      answeringLocked = false;
+      render();          // home sayılarını güncelle
+      show("screenMath");
+      renderMath();
+    }, 520);
 
   } else {
+    // yanlış: 0.5 sn doğruyu göster
+    btnEl && btnEl.classList.add("bad");
+    highlightCorrectAnswer();
 
     if(mode === "marathon"){
-      highlightCorrectAnswer();      // 0.5 sn doğruyu göster
       const before = state.math.streak;
-      state.math.streak =
-        marathonStreakPenalty(state.math.streak);
+      state.math.streak = marathonStreakPenalty(state.math.streak);
       const after = state.math.streak;
       mtoast(`Olmadı 🙂 Seri ${before} → ${after}`);
+    } else if(mode === "master"){
+      state.math.streak = 0;
+      mtoast("Olmadı… bir daha 🙂");
     } else {
       state.math.streak = 0;
-      highlightCorrectAnswer();
       mtoast("Tekrar dene 🙂");
     }
+
+    save(state);
+
+    setTimeout(() => {
+      currentQ = pickQuestion();
+      answeringLocked = false;
+      render();
+      show("screenMath");
+      renderMath();
+    }, 500);
   }
+}
 
-  save(state);
+function onMasterSubmit(){
+  if(answeringLocked) return;
+  if(mode !== "master") return;
 
-  setTimeout(()=>{
-    currentQ = pickQuestion();
-    answeringLocked = false;
-    render();
-    show("screenMath");
-    renderMath();
-  }, correct ? 500 : 500);   // ❗ artık yanlışta da 0.5 sn
+  const raw = $("ansInput").value.trim();
+  if(!raw){
+    mtoast("Cevabı yaz 🙂");
+    return;
+  }
+  const val = Number(raw);
+  if(!Number.isFinite(val)){
+    mtoast("Sadece sayı 🙂");
+    return;
+  }
+  onAnswer(val, null);
 }
 
 /* ---------- UI RENDER ---------- */
@@ -239,111 +293,177 @@ function render(){
   $("ver").textContent = "v0.6";
 
   const k = state.koala;
-  if(!k.name){
+  const hasName = !!k.name;
+
+  if(!hasName){
     show("screenName");
     return;
   }
 
+  // HOME
   $("helloTitle").textContent = `Merhaba, ${k.name}!`;
-  $("helloSub").textContent = "Koalan büyümeye hazır.";
+  $("helloSub").textContent = `Koalan sakin… ve büyümeye hazır.`;
 
   $("sCorrect").textContent = k.correctTotal;
   $("sLeaves").textContent = k.leaves;
   $("sXp").textContent = k.xp;
   $("sStreak").textContent = state.math.streak;
 
-  $("koalaStage").innerHTML =
-    renderKoalaLayers(state,{big:false});
-  applyKoalaIdleMotion(
-    $("koalaStage").querySelector(".koalaCanvas")
-  );
+  $("koalaStage").innerHTML = renderKoalaLayers(state, {big:false});
+  applyKoalaIdleMotion($("koalaStage").querySelector(".koalaCanvas"));
 
-  $("kTitle").textContent = k.name;
+  // KOALA SCREEN
+  $("kTitle").textContent = `${k.name}`;
   $("kSub").textContent = stageLabel(k.stage);
-  $("kTiny").textContent =
-    `Tokluk ${k.hunger}% • XP ${k.xp} • Yaprak ${k.leaves}`;
+  $("kTiny").textContent = `Tokluk ${k.hunger}% • XP ${k.xp} • Yaprak ${k.leaves}`;
 
-  $("koalaBig").innerHTML =
-    renderKoalaLayers(state,{big:true});
-  applyKoalaIdleMotion(
-    $("koalaBig").querySelector(".koalaCanvas")
-  );
+  $("koalaBig").innerHTML = renderKoalaLayers(state, {big:true});
+  applyKoalaIdleMotion($("koalaBig").querySelector(".koalaCanvas"));
 
   $("barHunger").style.width = `${k.hunger}%`;
-  $("barXp").style.width =
-    `${Math.min(100,(k.xp % 100))}%`;
+  $("barXp").style.width = `${Math.min(100, (k.xp % 100))}%`;
 
   show("screenHome");
 }
 
-/* ---------- EVENTS ---------- */
-$("btnMath").addEventListener("click", ()=>{
+function setColor(color){
+  state.koala.color = color;
+  save(state);
+  document.querySelectorAll("[data-color]").forEach(b=>{
+    b.classList.toggle("selected", b.dataset.color===color);
+  });
+  render();
+}
+
+/* ---------- EVENTS (NAME + HOME) ---------- */
+$("btnRandom").addEventListener("click", () => {
+  const pool = ["Pofuduk","Bulut","Minnoş","Fıstık","Pamuk","Lokum","Boncuk","Tarçın","Karamel","Maviş"];
+  $("nameInput").value = pool[Math.floor(Math.random()*pool.length)];
+});
+
+$("btnStart").addEventListener("click", () => {
+  const v = $("nameInput").value.trim();
+  if(!v){
+    toast("İsim yazalım 🙂");
+    return;
+  }
+  state.koala.name = v.slice(0,18);
+  if(!state.koala.color) state.koala.color = "mint";
+  save(state);
+  toast("");
+  render();
+});
+
+document.querySelectorAll("[data-color]").forEach(btn=>{
+  btn.addEventListener("click", ()=> setColor(btn.dataset.color));
+});
+
+/* ---------- EVENTS (NAV) ---------- */
+$("btnKoala").addEventListener("click", () => {
+  show("screenKoala");
+  toast("",1);
+  toast("",2);
+  setTimeout(()=>{
+    const c = $("koalaBig").querySelector(".koalaCanvas");
+    applyKoalaIdleMotion(c);
+  }, 0);
+});
+
+$("btnBack").addEventListener("click", () => show("screenHome"));
+
+$("btnMath").addEventListener("click", () => {
   show("screenMath");
   setMode(mode || "speed");
 });
 
-$("btnMathBack").addEventListener("click", ()=> show("screenHome"));
+$("btnMathBack").addEventListener("click", () => show("screenHome"));
 
-document.querySelectorAll(".tabBtn")
-  .forEach(btn=>{
-    btn.addEventListener("click",
-      ()=> setMode(btn.dataset.mode));
-  });
-
-$("btnAnsOk")?.addEventListener("click", ()=>{
-  const raw = $("ansInput").value.trim();
-  if(!raw) return;
-  const val = Number(raw);
-  if(!Number.isFinite(val)) return;
-  onAnswer(val, null);
+document.querySelectorAll(".tabBtn").forEach(btn=>{
+  btn.addEventListener("click", ()=> setMode(btn.dataset.mode));
 });
 
-$("ansInput")?.addEventListener("keydown", e=>{
-  if(e.key==="Enter"){
-    const val = Number($("ansInput").value.trim());
-    if(Number.isFinite(val)) onAnswer(val,null);
-  }
+$("btnAnsOk").addEventListener("click", onMasterSubmit);
+$("ansInput").addEventListener("keydown", (e)=>{
+  if(e.key === "Enter") onMasterSubmit();
 });
 
-$("btnExport").addEventListener("click", ()=>{
+/* ---------- BACKUP ---------- */
+$("btnExport").addEventListener("click", () => {
   exportToFile(state);
   toast("Yedek indirildi ✅");
 });
 
-$("importFile").addEventListener("change", async e=>{
-  const f = e.target.files?.[0];
+$("importFile").addEventListener("change", async (e) => {
+  const f = e.target.files && e.target.files[0];
   if(!f) return;
   try{
     state = await importFromFile(f);
-    state.math = state.math || { streak: 0 };
-    currentQ = null;
+    state.math = state.math || { streak: 0, lastQ: null, lastA: null };
     toast("Yedek yüklendi ✅");
+    currentQ = null;
     render();
   }catch{
     toast("Bu dosya okunamadı 😅");
+  } finally {
+    e.target.value = "";
   }
 });
 
-$("btnResetConfirm").addEventListener("click", ()=>{
+/* ---------- FEED ---------- */
+$("btnFeed").addEventListener("click", () => {
+  const k = state.koala;
+  if(k.leaves < 10){
+    toast("10 yaprak lazım 🍃",2);
+    return;
+  }
+  k.leaves -= 10;
+  k.hunger = Math.min(100, k.hunger + 25);
+  save(state);
+  toast("Mmm… teşekkürler 😌",2);
+  render();
+  show("screenKoala");
+});
+
+/* ---------- RESET (double confirm) ---------- */
+let resetArmed = false;
+$("btnResetConfirm").addEventListener("click", () => {
+  if(!resetArmed){
+    resetArmed = true;
+    toast("Sıfırlamak için tekrar bas (geri dönüş yok).",1);
+    setTimeout(()=>{ resetArmed=false; }, 4000);
+    return;
+  }
   state = reset();
-  state.math = { streak: 0 };
+  state.math = { streak: 0, lastQ: null, lastA: null };
+  resetArmed = false;
   currentQ = null;
+  toast("Sıfırlandı.",1);
   render();
 });
 
+/* ---------- PWA ---------- */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js");
 }
 
+// Init selected color buttons
+setTimeout(()=>{
+  const color = (state.koala && state.koala.color) || "mint";
+  document.querySelectorAll("[data-color]").forEach(b=>{
+    b.classList.toggle("selected", b.dataset.color===color);
+  });
+}, 0);
+
 render();
 
 /* ---------- helpers ---------- */
-function randInt(min,max){
-  return Math.floor(Math.random()*(max-min+1))+min;
+function randInt(min, max){
+  return Math.floor(Math.random()*(max-min+1)) + min;
 }
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
   }
+  return a;
 }
