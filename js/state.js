@@ -1,22 +1,31 @@
-export const VERSION = "0.2";
+export const VERSION = "0.4";
 
 export function defaultState() {
   return {
     meta: { version: VERSION, createdAt: Date.now(), updatedAt: Date.now() },
+
     koala: {
       name: "",
-      color: "mint",        // default
+      color: "mint",
       stage: 1,             // 1..5
       xp: 0,
       leaves: 0,
       hunger: 60,           // 0..100
       correctTotal: 0
     },
+
+    math: {
+      streak: 0,
+      lastQ: null,
+      lastA: null
+    },
+
     wardrobe: {
       unlocked: false,
       owned: [],
       equipped: { hat:null, neck:null, hand:null, back:null, suit:null }
     },
+
     shop: {
       unlocked: false,
       lastOfferAt: 0
@@ -29,6 +38,7 @@ export function sanitizeState(s) {
   if (!s || typeof s !== "object") return d;
 
   const out = d;
+
   out.meta = out.meta || {};
   out.meta.version = (s.meta && s.meta.version) || d.meta.version;
   out.meta.createdAt = (s.meta && s.meta.createdAt) || d.meta.createdAt;
@@ -42,6 +52,11 @@ export function sanitizeState(s) {
   out.koala.leaves = clampInt(k.leaves, 0, 999999, 0);
   out.koala.hunger = clampInt(k.hunger, 0, 100, 60);
   out.koala.correctTotal = clampInt(k.correctTotal, 0, 999999, 0);
+
+  const m = (s.math && typeof s.math === "object") ? s.math : {};
+  out.math.streak = clampInt(m.streak, 0, 999999, 0);
+  out.math.lastQ = m.lastQ || null;
+  out.math.lastA = m.lastA || null;
 
   const w = (s.wardrobe && typeof s.wardrobe === "object") ? s.wardrobe : {};
   out.wardrobe.unlocked = !!w.unlocked;
@@ -62,6 +77,7 @@ function safeColor(c){
   if(v==="mint"||v==="lavender"||v==="sky") return v;
   return "";
 }
+
 function clampInt(v, min, max, def) {
   const n = Number(v);
   if (!Number.isFinite(n)) return def;
