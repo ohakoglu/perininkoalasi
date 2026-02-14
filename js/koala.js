@@ -1,33 +1,27 @@
-export function koalaLayerPaths(state){ 
-  const color = (state.koala && state.koala.color) || "mint";
-  const base = `assets/koala/base/base_${color}.png`;
+// js/koala.js
+// Foto-temelli koala: her 100 doğru -> bir sonraki sahne (family_00..family_29)
 
-  const eq = (state.wardrobe && state.wardrobe.equipped) || {};
-  return {
-    back: eq.back ? `assets/koala/back/${eq.back}` : "",
-    base,
-    suit: eq.suit ? `assets/koala/suit/${eq.suit}` : "",
-    neck: eq.neck ? `assets/koala/neck/${eq.neck}` : "",
-    hand: eq.hand ? `assets/koala/hand/${eq.hand}` : "",
-    hat:  eq.hat  ? `assets/koala/hats/${eq.hat}` : ""
-  };
+const AVAILABLE_FAMILY_IMAGES = 6; // şimdilik 6, sonra 30 yapacağız
+
+export function familyIndexFromCorrect(correctTotal){
+  const idx = Math.floor((Number(correctTotal) || 0) / 100);
+  return Math.max(0, Math.min(AVAILABLE_FAMILY_IMAGES - 1, idx));
 }
 
-export function renderKoalaLayers(state, {big=false} = {}){
-  const layers = koalaLayerPaths(state);
+export function familyImagePath(idx){
+  const safe = String(idx).padStart(2, "0");
+  return `assets/koala/family/family_${safe}.webp`;
+}
 
-  const img = (src, cls) => src
-    ? `<img class="kLayer ${cls}" src="${src}" alt="">`
-    : `<span class="kLayer ${cls}"></span>`;
+export function renderKoalaLayers(state, { big=false } = {}){
+  // mevcut app.js bozulmasın diye fonksiyon adını aynı bıraktım
+  const correct = (state && state.koala && state.koala.correctTotal) || 0;
+  const idx = familyIndexFromCorrect(correct);
+  const src = familyImagePath(idx);
 
   return `
     <div class="koalaCanvas ${big ? "big" : "small"}">
-      ${img(layers.back,"back")}
-      ${img(layers.base,"base")}
-      ${img(layers.suit,"suit")}
-      ${img(layers.neck,"neck")}
-      ${img(layers.hand,"hand")}
-      ${img(layers.hat,"hat")}
+      <img class="kLayer base" src="${src}" alt="Koala">
     </div>
   `;
 }
