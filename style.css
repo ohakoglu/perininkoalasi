@@ -4,15 +4,25 @@
   --ink:#0f172a;
   --soft:#F1F5F9;
   --blue:#1F6FEB;
+  --blueSoft:#EAF2FF;
   --shadow: 0 10px 28px rgba(0,0,0,.08);
-  --r:24px;
+  --r:18px;
+
+  /* Ölçek (telefon varsayılan) */
+  --pad:16px;
+  --cardPad:16px;
+  --h1:22px;
+  --h2:16px;
+  --btnPad:14px;
+  --btnFs:16px;
+  --pillFs:14px;
+  --optFs:20px;
+  --optPad:16px;
 }
 
 *{ box-sizing:border-box; }
 
-html, body{
-  height:100%;
-}
+html, body{ height:100%; }
 
 body{
   margin:0;
@@ -22,70 +32,293 @@ body{
   min-height:100svh;
 }
 
+/* Genel kapsayıcı */
 .wrap{
-  max-width:1000px;
+  max-width:640px;
   margin:0 auto;
-  padding:28px;
+  padding: var(--pad);
+  min-height: 100svh;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
+/* Üst bar */
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.brand{ display:flex; align-items:center; gap:12px; }
+.logo{
+  width:44px;height:44px;border-radius:14px;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow: var(--shadow);
+}
+.title{ font-weight:950; }
+.subtitle{ font-size:12px; opacity:.7; font-weight:800; margin-top:2px; }
+
+/* Kartlar (ekranlar) */
 .card{
   background:var(--card);
   border-radius: var(--r);
-  padding:28px;
+  padding: var(--cardPad);
   box-shadow: var(--shadow);
 }
 
-h1{ font-size:32px; }
-.sub{ font-size:18px; }
+.screen{
+  /* Tablet’te tam ekran çalışacak; telefonda doğal */
+}
 
-.btn{
-  padding:20px;
-  font-size:20px;
+/* Başlıklar */
+h1{ margin:0 0 8px; font-size: var(--h1); }
+h2{ margin:0 0 8px; font-size: var(--h2); }
+.sub{ margin:0 0 14px; font-weight:850; opacity:.75; }
+
+/* Form */
+.label{ display:block; font-size:12px; font-weight:950; opacity:.8; margin:10px 0 6px; }
+.input{
+  width:100%;
+  padding:14px 14px;
+  border-radius:14px;
+  border:1px solid rgba(15,23,42,.12);
+  font-size:16px;
   font-weight:900;
-  border-radius:20px;
+  outline:none;
+  background:#fff;
+}
+
+/* Satırlar */
+.row{ display:flex; gap:10px; flex-wrap:wrap; }
+.row > *{ flex:1; min-width: 160px; }
+.row3 > *{ min-width: 0; }
+
+/* Buton */
+.btn{
+  border:0;
+  border-radius:14px;
+  padding: var(--btnPad);
+  font-size: var(--btnFs);
+  font-weight:950;
   background:var(--blue);
   color:#fff;
-  border:0;
 }
+.btn:active{ transform: translateY(1px); }
+.btn-soft{ background: var(--blueSoft); color: var(--blue); }
+.btn-mini{ padding:10px 12px; font-size:14px; flex:0 0 auto; min-width:auto; }
 
+/* Renk seçimi */
+.colorBtn{ border:1px solid rgba(31,111,235,.20); }
+.colorBtn.selected{ outline:3px solid rgba(31,111,235,.28); }
+
+/* Rozet/pill */
 .pill{
-  padding:14px 18px;
-  font-size:18px;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:10px 12px; border-radius:999px;
+  background: var(--soft);
+  font-weight:950;
+  border:1px solid rgba(15,23,42,.06);
+  font-size: var(--pillFs);
+}
+.pill-soft{ background:#fff; }
+
+/* Görünürlük */
+.hidden{ display:none; }
+
+/* Toast/Tiny */
+.toast{ margin-top:10px; font-weight:950; min-height:24px; opacity:.85; }
+.tiny{ margin-top:10px; font-size:12px; font-weight:900; opacity:.7; }
+
+/* HOME düzeni */
+.homeHead{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.stats{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+.hero{ margin-top:14px; }
+.heroButtons{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.heroButtons .btn{ flex:1; min-width: 180px; }
+
+.divider{ height:1px; background: rgba(15,23,42,.08); margin:16px 0; }
+
+.fileBtn{ position:relative; overflow:hidden; display:inline-flex; justify-content:center; align-items:center; }
+.fileBtn input{ position:absolute; inset:0; opacity:0; width:100%; height:100%; }
+
+/* Koala alanları */
+.koalaStage, .koalaBig{
+  background: linear-gradient(180deg, rgba(255,255,255,.60), rgba(255,255,255,.18));
+  border:2px solid rgba(15,23,42,.10);
+  border-radius: 22px;
+  box-shadow: 0 14px 30px rgba(0,0,0,.12);
+  overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.koalaStage{ height: 190px; }
+.koalaBig{ height: 360px; }
+
+.koalaCanvas{
+  position:relative;
+  width:180px;
+  height:180px;
+  transform-origin:center;
+}
+.koalaCanvas.big{ width:320px; height:320px; }
+
+.kLayer{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+}
+
+/* Subtle idle motion */
+@keyframes breathe { 0%{ transform: scale(1);} 50%{ transform: scale(1.02);} 100%{ transform: scale(1);} }
+.koalaIdle{ animation: breathe 2.8s ease-in-out infinite; }
+
+/* KOALA ekran barları */
+.bars{ display:grid; gap:10px; margin-top:14px; }
+.barLabel{ font-size:12px; font-weight:950; opacity:.75; margin-bottom:6px; }
+.barTrack{
+  height:14px; border-radius:999px; background: #F1F5F9;
+  border:1px solid rgba(15,23,42,.08); overflow:hidden;
+}
+.barFill{ height:100%; width:30%; background: rgba(31,111,235,.85); border-radius:999px; }
+
+/* Matematik */
+.modeTabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.tabBtn{
+  flex:1;
+  min-width: 160px;
+  border:1px solid rgba(15,23,42,.10);
+  background:#fff;
+  color: var(--ink);
+  font-weight:950;
+  border-radius:14px;
+  padding:12px 12px;
+}
+.tabBtn.selected{
+  outline:3px solid rgba(31,111,235,.20);
+  border-color: rgba(31,111,235,.35);
+}
+
+.mathTop{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:12px;
+}
+
+.prog{ margin-top:12px; }
+.progTrack{
+  height:14px;
   border-radius:999px;
-  background:var(--soft);
-  font-weight:900;
+  background:#F1F5F9;
+  border:1px solid rgba(15,23,42,.08);
+  overflow:hidden;
+}
+.progFill{
+  height:100%;
+  width:0%;
+  background: rgba(31,111,235,.85);
+  border-radius:999px;
 }
 
-.koalaStage{
-  height:300px;
+/* Matematik kartı (ekrana iyi sığsın diye) */
+.qCard{
+  margin-top:14px;
+  padding:14px;
+  border-radius:18px;
+  border:1px solid rgba(15,23,42,.08);
+  background: linear-gradient(180deg, rgba(234,246,255,.55), rgba(255,255,255,.65));
+}
+.qText{
+  font-size: clamp(22px, 4.2vw, 34px);
+  font-weight: 950;
+  text-align:center;
+  margin-bottom:12px;
+}
+
+/* Seçenekler: TELEFONDA da 2x2, TABLETTE de 2x2 ama büyük */
+.opts{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:12px;
+}
+.optBtn{
+  border:0;
+  border-radius:16px;
+  padding: var(--optPad);
+  font-size: var(--optFs);
+  font-weight:950;
+  background:#fff;
+  border:2px solid rgba(15,23,42,.10);
+}
+.optBtn:active{ transform: translateY(1px); }
+.optBtn.good{ border-color: rgba(16,185,129,.9); box-shadow: 0 0 0 3px rgba(16,185,129,.18); }
+.optBtn.bad{ border-color: rgba(239,68,68,.9); box-shadow: 0 0 0 3px rgba(239,68,68,.18); }
+.optBtn:disabled{ opacity:.95; }
+
+/* Master input */
+.answerRow{
   display:flex;
+  gap:10px;
   align-items:center;
-  justify-content:center;
+  margin-top:10px;
 }
+.ansInput{ flex:1; }
+.ansBtn{ flex:0 0 auto; min-width: 120px; }
 
-.koalaBig{
-  height:560px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+/* ===========================
+   TABLET: ekran kaydırmasın
+   =========================== */
+@media (min-width: 768px){
+  :root{
+    --pad:22px;
+    --cardPad:22px;
+    --h1:28px;
+    --h2:18px;
+    --btnPad:18px;
+    --btnFs:18px;
+    --pillFs:16px;
+    --optFs:28px;
+    --optPad:22px;
+  }
 
-@media (max-width:768px){
+  /* Tablet’te sayfa kaydırmayı kapatıp tek ekrana sığdırıyoruz */
+  body{ overflow:hidden; }
+
   .wrap{
-    padding:16px;
-    max-width:640px;
+    max-width: 980px;
+    height: 100svh;
   }
-  .card{
-    padding:16px;
+
+  /* Ekran kartı: header alanından sonra kalan tüm yüksekliği alsın */
+  .screen{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden; /* kaydırma yok */
   }
-  .btn{
-    padding:14px;
-    font-size:16px;
-  }
-  .koalaStage{
-    height:190px;
-  }
-  .koalaBig{
-    height:360px;
-  }
+
+  /* HOME’de koala sahnesi daha büyük */
+  .koalaStage{ height: 260px; }
+  .koalaBig{ height: 520px; }
+  .koalaCanvas.big{ width: 460px; height: 460px; }
+
+  /* Matematikte soru kartı büyüsün ve seçenekler “komik küçük” kalmasın */
+  #screenMath .qCard{ flex:1; display:flex; flex-direction:column; }
+  #screenMath .opts{ flex:1; align-content:start; }
+}
+
+/* Küçük telefonlar */
+@media (max-width: 360px){
+  .row > *{ min-width: 140px; }
+  .tabBtn{ min-width: 140px; }
 }
