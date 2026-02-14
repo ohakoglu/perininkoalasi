@@ -18,7 +18,7 @@
           <div class="subtitle">Matematikle büyür. Üzülmek yok.</div>
         </div>
       </div>
-      <div class="pill pill-soft" id="ver">v0.2</div>
+      <div class="pill pill-soft" id="ver">v0.4</div>
     </header>
 
     <!-- SCREEN: SET NAME -->
@@ -59,14 +59,14 @@
         <div class="pill">✅ Doğru: <span id="sCorrect">0</span></div>
         <div class="pill">🍃 Yaprak: <span id="sLeaves">0</span></div>
         <div class="pill">✨ XP: <span id="sXp">0</span></div>
-        <div class="pill">🍽️ Tokluk: <span id="sHunger">0</span>%</div>
+        <div class="pill">🔥 Seri: <span id="sStreak">0</span></div>
       </div>
 
       <div class="hero">
         <div class="koalaStage" id="koalaStage"></div>
         <div class="heroButtons">
           <button class="btn" id="btnKoala">Koalam</button>
-          <button class="btn btn-soft" id="btnMath">Matematik (yakında)</button>
+          <button class="btn" id="btnMath">Matematik Başla</button>
         </div>
       </div>
 
@@ -84,6 +84,40 @@
       </div>
 
       <div class="toast" id="toast"></div>
+    </section>
+
+    <!-- SCREEN: MATH -->
+    <section class="card hidden" id="screenMath">
+      <div class="homeHead">
+        <div>
+          <h1>Matematik</h1>
+          <p class="sub" id="mSub">Kısa kısa, tatlı tatlı.</p>
+        </div>
+        <button class="btn btn-soft btn-mini" id="btnMathBack">Geri</button>
+      </div>
+
+      <div class="mathTop">
+        <div class="pill">🎯 Hedef: <b><span id="mGoal">3000</span></b></div>
+        <div class="pill">✅ Doğru: <b><span id="mCorrect">0</span></b></div>
+        <div class="pill">🔥 Seri: <b><span id="mStreak">0</span></b></div>
+      </div>
+
+      <div class="prog">
+        <div class="progTrack">
+          <div class="progFill" id="mProg"></div>
+        </div>
+        <div class="tiny" id="mPhase">Isınma</div>
+      </div>
+
+      <div class="qCard">
+        <div class="qText" id="qText">Hazır mısın?</div>
+        <div class="opts" id="optGrid">
+          <!-- buttons here -->
+        </div>
+        <div class="toast" id="mToast"></div>
+      </div>
+
+      <div class="tiny">Yanlışta ceza yok. “Tekrar dene 🙂”</div>
     </section>
 
     <!-- SCREEN: KOALA -->
