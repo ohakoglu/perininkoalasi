@@ -2,6 +2,7 @@ import { load, save, reset, exportToFile, importFromFile } from "./storage.js";
 import { renderKoalaLayers, applyKoalaIdleMotion } from "./koala.js";
 
 let state = load();
+state.math = state.math || { streak: 0 };
 
 const $ = (id) => document.getElementById(id);
 
@@ -29,8 +30,10 @@ function stageLabel(stage){
 
 /* ---------- MATH ENGINE ---------- */
 const GOAL = 3000;
+
 let currentQ = null;
 let answeringLocked = false;
+let mode = "speed";
 
 function phaseFor(correctTotal){
   if(correctTotal < 150) return { name:"Isınma", pool:[2,5,10] };
@@ -39,16 +42,22 @@ function phaseFor(correctTotal){
   return { name:"Tam Tablo", pool:[2,3,4,5,6,7,8,9,10] };
 }
 
-// hedef: 2–9 çarpım tablosu; 10 dahil edildi ama kolay/rahatlatıcı.
 function pickQuestion(){
   const k = state.koala;
   const ph = phaseFor(k.correctTotal);
-  const a = ph.pool[Math.floor(Math.random()*ph.pool.length)];
-  const bPool = (k.correctTotal < 150) ? [1,2,3,4,5,6,7,8,9,10] : [2,3,4,5,6,7,8,9,10];
+
+  const basePool = (mode === "marathon")
+    ? [2,3,4,5,6,7,8,9,10]
+    : ph.pool;
+
+  const a = basePool[Math.floor(Math.random()*basePool.length)];
+  const bPool = (k.correctTotal < 150)
+    ? [1,2,3,4,5,6,7,8,9,10]
+    : [2,3,4,5,6,7,8,9,10];
+
   const b = bPool[Math.floor(Math.random()*bPool.length)];
   const ans = a * b;
 
-  // 4 seçenek: doğru + 3 yakın yanlış
   const opts = new Set([ans]);
   while(opts.size < 4){
     const delta = randInt(-5, 6);
@@ -57,18 +66,75 @@ function pickQuestion(){
     if(cand === ans) continue;
     opts.add(cand);
   }
+
   const list = Array.from(opts);
   shuffle(list);
 
-  return {
-    a,b,ans,
-    opts:list,
-    phaseName: ph.name
-  };
+  return { a,b,ans,opts:list };
+}
+
+function marathonMultiplier(streak){
+  if(streak >= 20) return 2.2;
+  if(streak >= 15) return 1.8;
+  if(streak >= 10) return 1.5;
+  if(streak >= 5)  return 1.2;
+  return 1.0;
+}
+
+function marathonStreakPenalty(streak){
+  return Math.max(0, streak - 5);
+}
+
+function pointsForCorrect(){
+  let leaves = 1;
+  let xp = 2;
+
+  if(mode === "master"){
+    leaves *= 2;
+    xp *= 2;
+  }
+
+  if(mode === "marathon"){
+    const mult = marathonMultiplier(state.math.streak);
+    leaves = Math.max(1, Math.round(leaves * mult));
+    xp = Math.max(1, Math.round(xp * mult));
+  }
+
+  return { leaves, xp };
+}
+
+function setMode(next){
+  mode = next;
+
+  document.querySelectorAll(".tabBtn").forEach(b=>{
+    b.classList.toggle("selected", b.dataset.mode === mode);
+  });
+
+  const isMaster = mode === "master";
+  $("answerRow").classList.toggle("hidden", !isMaster);
+  $("optGrid").classList.toggle("hidden", isMaster);
+
+  $("mMultPill").style.display =
+    (mode === "marathon") ? "inline-flex" : "none";
+
+  if(mode === "speed"){
+    $("mSub").textContent = "Hız kazanalım: 4 şık, hızlı cevap.";
+    $("mHint").textContent = "Yanlışta ceza yok 🙂";
+  } else if(mode === "master"){
+    $("mSub").textContent = "Usta Modu: cevabı sen yazarsın. (2×)";
+    $("mHint").textContent = "Yanlışta üzülmek yok 🙂";
+  } else {
+    $("mSub").textContent = "Maraton: seri uzadıkça puan artar.";
+    $("mHint").textContent = "Yanlışta seri düşer ama sıfırlanmaz 🙂";
+  }
+
+  currentQ = pickQuestion();
+  renderMath();
 }
 
 function renderMath(){
   const k = state.koala;
+
   $("mGoal").textContent = GOAL;
   $("mCorrect").textContent = k.correctTotal;
   $("mStreak").textContent = state.math.streak;
@@ -76,25 +142,48 @@ function renderMath(){
   const pct = Math.min(100, (k.correctTotal / GOAL) * 100);
   $("mProg").style.width = `${pct}%`;
 
-  const ph = phaseFor(k.correctTotal);
-  $("mPhase").textContent = `Faz: ${ph.name}`;
-
   if(!currentQ) currentQ = pickQuestion();
 
   $("qText").textContent = `${currentQ.a} × ${currentQ.b} = ?`;
 
+  if(mode === "marathon"){
+    $("mMult").textContent =
+      marathonMultiplier(state.math.streak).toFixed(1);
+  } else {
+    $("mMult").textContent = "1.0";
+  }
+
+  mtoast("🙂");
+
   const grid = $("optGrid");
   grid.innerHTML = "";
 
-  currentQ.opts.forEach((val) => {
-    const btn = document.createElement("button");
-    btn.className = "optBtn";
-    btn.textContent = String(val);
-    btn.addEventListener("click", () => onAnswer(val, btn));
-    grid.appendChild(btn);
-  });
+  if(mode !== "master"){
+    currentQ.opts.forEach(val=>{
+      const btn = document.createElement("button");
+      btn.className = "optBtn";
+      btn.textContent = val;
+      btn.addEventListener("click", ()=> onAnswer(val, btn));
+      grid.appendChild(btn);
+    });
+  } else {
+    $("ansInput").value = "";
+    setTimeout(()=> $("ansInput").focus(), 0);
+  }
+}
 
-  mtoast("🙂");
+function lockButtons(lock){
+  if(mode === "master") return;
+  document.querySelectorAll(".optBtn")
+    .forEach(b=> b.disabled = !!lock);
+}
+
+function highlightCorrectAnswer(){
+  document.querySelectorAll(".optBtn").forEach(b=>{
+    if(Number(b.textContent) === currentQ.ans){
+      b.classList.add("good");
+    }
+  });
 }
 
 function onAnswer(val, btnEl){
@@ -104,220 +193,157 @@ function onAnswer(val, btnEl){
   const k = state.koala;
   const correct = (val === currentQ.ans);
 
-  // tüm butonları disable et
-  document.querySelectorAll(".optBtn").forEach(b => b.disabled = true);
+  lockButtons(true);
 
   if(correct){
-    btnEl.classList.add("good");
+    btnEl && btnEl.classList.add("good");
+
     state.math.streak += 1;
-
-    // Ödüller
     k.correctTotal += 1;
-    k.leaves += 1;
-    k.xp += 2;
 
-    // 5 seri bonusu
-    if(state.math.streak % 5 === 0){
-      k.leaves += 3;
-      mtoast("Süper seri! +3 bonus yaprak 🍃🍃🍃");
-    } else {
-      mtoast("Doğru! 🐾");
-    }
+    const pts = pointsForCorrect();
+    k.leaves += pts.leaves;
+    k.xp += pts.xp;
 
-    // 3000 bitiş (şimdilik mesaj)
-    if(k.correctTotal >= GOAL){
-      mtoast("🎉 3000! Koalan efsane oldu. (Final ekranını sonra ekleriz)");
-    }
+    mtoast("Doğru! 🐾");
 
   } else {
-    btnEl.classList.add("bad");
-    state.math.streak = 0;
-    mtoast("Tekrar dene 🙂");
 
-    // doğru şıkkı kısa göster (ceza yok, öğretici)
-    setTimeout(() => {
-      document.querySelectorAll(".optBtn").forEach(b => {
-        if(Number(b.textContent) === currentQ.ans) b.classList.add("good");
-      });
-    }, 250);
+    if(mode === "marathon"){
+      highlightCorrectAnswer();      // 0.5 sn doğruyu göster
+      const before = state.math.streak;
+      state.math.streak =
+        marathonStreakPenalty(state.math.streak);
+      const after = state.math.streak;
+      mtoast(`Olmadı 🙂 Seri ${before} → ${after}`);
+    } else {
+      state.math.streak = 0;
+      highlightCorrectAnswer();
+      mtoast("Tekrar dene 🙂");
+    }
   }
 
   save(state);
 
-  // sonraki soru
-  setTimeout(() => {
+  setTimeout(()=>{
     currentQ = pickQuestion();
     answeringLocked = false;
-    render();          // home/koala sayılarını güncelle
+    render();
     show("screenMath");
     renderMath();
-  }, correct ? 520 : 900);
+  }, correct ? 500 : 500);   // ❗ artık yanlışta da 0.5 sn
 }
 
 /* ---------- UI RENDER ---------- */
 function render(){
-  $("ver").textContent = "v0.4";
+  $("ver").textContent = "v0.6";
 
   const k = state.koala;
-  const hasName = !!k.name;
-
-  if(!hasName){
+  if(!k.name){
     show("screenName");
     return;
   }
 
-  // HOME
   $("helloTitle").textContent = `Merhaba, ${k.name}!`;
-  $("helloSub").textContent = `Koalan sakin… ve büyümeye hazır.`;
+  $("helloSub").textContent = "Koalan büyümeye hazır.";
 
   $("sCorrect").textContent = k.correctTotal;
   $("sLeaves").textContent = k.leaves;
   $("sXp").textContent = k.xp;
   $("sStreak").textContent = state.math.streak;
 
-  $("koalaStage").innerHTML = renderKoalaLayers(state, {big:false});
-  applyKoalaIdleMotion($("koalaStage").querySelector(".koalaCanvas"));
+  $("koalaStage").innerHTML =
+    renderKoalaLayers(state,{big:false});
+  applyKoalaIdleMotion(
+    $("koalaStage").querySelector(".koalaCanvas")
+  );
 
-  // KOALA SCREEN
-  $("kTitle").textContent = `${k.name}`;
+  $("kTitle").textContent = k.name;
   $("kSub").textContent = stageLabel(k.stage);
-  $("kTiny").textContent = `Tokluk ${k.hunger}% • XP ${k.xp} • Yaprak ${k.leaves}`;
+  $("kTiny").textContent =
+    `Tokluk ${k.hunger}% • XP ${k.xp} • Yaprak ${k.leaves}`;
 
-  $("koalaBig").innerHTML = renderKoalaLayers(state, {big:true});
-  applyKoalaIdleMotion($("koalaBig").querySelector(".koalaCanvas"));
+  $("koalaBig").innerHTML =
+    renderKoalaLayers(state,{big:true});
+  applyKoalaIdleMotion(
+    $("koalaBig").querySelector(".koalaCanvas")
+  );
 
   $("barHunger").style.width = `${k.hunger}%`;
-  $("barXp").style.width = `${Math.min(100, (k.xp % 100))}%`;
+  $("barXp").style.width =
+    `${Math.min(100,(k.xp % 100))}%`;
 
   show("screenHome");
 }
 
-function setColor(color){
-  state.koala.color = color;
-  save(state);
-  document.querySelectorAll("[data-color]").forEach(b=>{
-    b.classList.toggle("selected", b.dataset.color===color);
-  });
-  render();
-}
-
 /* ---------- EVENTS ---------- */
-$("btnRandom").addEventListener("click", () => {
-  const pool = ["Pofuduk","Bulut","Minnoş","Fıstık","Pamuk","Lokum","Boncuk","Tarçın","Karamel","Maviş"];
-  $("nameInput").value = pool[Math.floor(Math.random()*pool.length)];
-});
-
-$("btnStart").addEventListener("click", () => {
-  const v = $("nameInput").value.trim();
-  if(!v){
-    toast("İsim yazalım 🙂");
-    return;
-  }
-  state.koala.name = v.slice(0,18);
-  if(!state.koala.color) state.koala.color = "mint";
-  save(state);
-  toast("");
-  render();
-});
-
-document.querySelectorAll("[data-color]").forEach(btn=>{
-  btn.addEventListener("click", ()=> setColor(btn.dataset.color));
-});
-
-$("btnKoala").addEventListener("click", () => {
-  show("screenKoala");
-  toast("",1);
-  toast("",2);
-  setTimeout(()=>{
-    const c = $("koalaBig").querySelector(".koalaCanvas");
-    applyKoalaIdleMotion(c);
-  }, 0);
-});
-
-$("btnBack").addEventListener("click", () => show("screenHome"));
-
-$("btnMath").addEventListener("click", () => {
-  currentQ = pickQuestion();
+$("btnMath").addEventListener("click", ()=>{
   show("screenMath");
-  renderMath();
+  setMode(mode || "speed");
 });
 
-$("btnMathBack").addEventListener("click", () => show("screenHome"));
+$("btnMathBack").addEventListener("click", ()=> show("screenHome"));
 
-$("btnExport").addEventListener("click", () => {
+document.querySelectorAll(".tabBtn")
+  .forEach(btn=>{
+    btn.addEventListener("click",
+      ()=> setMode(btn.dataset.mode));
+  });
+
+$("btnAnsOk")?.addEventListener("click", ()=>{
+  const raw = $("ansInput").value.trim();
+  if(!raw) return;
+  const val = Number(raw);
+  if(!Number.isFinite(val)) return;
+  onAnswer(val, null);
+});
+
+$("ansInput")?.addEventListener("keydown", e=>{
+  if(e.key==="Enter"){
+    const val = Number($("ansInput").value.trim());
+    if(Number.isFinite(val)) onAnswer(val,null);
+  }
+});
+
+$("btnExport").addEventListener("click", ()=>{
   exportToFile(state);
   toast("Yedek indirildi ✅");
 });
 
-$("importFile").addEventListener("change", async (e) => {
-  const f = e.target.files && e.target.files[0];
+$("importFile").addEventListener("change", async e=>{
+  const f = e.target.files?.[0];
   if(!f) return;
   try{
     state = await importFromFile(f);
-    toast("Yedek yüklendi ✅");
+    state.math = state.math || { streak: 0 };
     currentQ = null;
+    toast("Yedek yüklendi ✅");
     render();
   }catch{
     toast("Bu dosya okunamadı 😅");
-  } finally {
-    e.target.value = "";
   }
 });
 
-// Besleme: 10 yaprak -> +25 tokluk
-$("btnFeed").addEventListener("click", () => {
-  const k = state.koala;
-  if(k.leaves < 10){
-    toast("10 yaprak lazım 🍃",2);
-    return;
-  }
-  k.leaves -= 10;
-  k.hunger = Math.min(100, k.hunger + 25);
-  save(state);
-  toast("Mmm… teşekkürler 😌",2);
-  render();
-  show("screenKoala");
-});
-
-// Reset (double confirm)
-let resetArmed = false;
-$("btnResetConfirm").addEventListener("click", () => {
-  if(!resetArmed){
-    resetArmed = true;
-    toast("Sıfırlamak için tekrar bas (geri dönüş yok).",1);
-    setTimeout(()=>{ resetArmed=false; }, 4000);
-    return;
-  }
+$("btnResetConfirm").addEventListener("click", ()=>{
   state = reset();
-  resetArmed = false;
+  state.math = { streak: 0 };
   currentQ = null;
-  toast("Sıfırlandı.",1);
   render();
 });
 
-// PWA service worker
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js");
 }
 
-// Init selected color buttons
-setTimeout(()=>{
-  const color = (state.koala && state.koala.color) || "mint";
-  document.querySelectorAll("[data-color]").forEach(b=>{
-    b.classList.toggle("selected", b.dataset.color===color);
-  });
-}, 0);
-
 render();
 
 /* ---------- helpers ---------- */
-function randInt(min, max){
-  return Math.floor(Math.random()*(max-min+1)) + min;
+function randInt(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
 }
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
   }
-  return a;
 }
